@@ -9,7 +9,6 @@ import random
 token = open('tokenfile').read()
 client = discord.Client()
 
-
 tc = turtlecoin.TurtleCoind(host='public.turtlenode.io', port=11898)
 
 tclbh = tc.get_last_block_header()['result']
@@ -32,28 +31,28 @@ def getstats(height):
 	#wheter the time the block took to make is acceptable or not
 	timex = tcgl['timestamp']
 	prevhash = tcgl['prev_hash']
-	glb = tc.getblock(prevhash)
+	glb = tc.get_block(prevhash)['result']
 	time2 = glb['block']['timestamp']
 	timed = timex - time2
 	rock = "388916188715155467"
 	pingrock = "<@" + rock + ">"
 	blocktime = ""
 	if timed <= 4:
-		blocktime += "Block was too fast, {timed} seconds".format(timed=timed)
+		blocktime += f"Block was too fast, {timed} seconds"
 		pingrock += ""
 	elif timed >= 90:
 		blocktime += f'Took too long, {timed} seconds.'
 		pingrock += ""
 	else:
-		blocktime += "Took {timed} seconds to make, pretty nice".format(timed=timed)
+		blocktime += f"Took {timed} seconds to make, pretty nice"
 		pingrock = ""
 
 	#size of the block
-	bsize = tc.getblock(hash)
+	bsize = tc.get_block(hash)['result']
 	bsizes = bsize['block']['blockSize']
 
 	# number of transaction hashes in the block
-	txs = tc.getblock(hash)
+	txs = tc.get_block(hash)['result']
 	ntxs = len(txs['block']['transactions'])
 
 	#each tx hash in the block
@@ -69,13 +68,12 @@ def getstats(height):
 
 	for hash in hashes:
 		#tx extra hash
-		teta = tc.gettransaction(hash)['tx']['extra']
+		teta = tc.get_transaction(hash)['result']['tx']['extra']
 		#Decoded version of tx_extra:
 		try:
 			deteta = bytes.fromhex(teta).decode('utf-8')
 		except UnicodeDecodeError:
-			print("deta oops")
-			#deteta = "unable to decode, probably nothing in there"
+			deteta = "unable to decode, probably nothing in there"
 
 	#size of tx extra		
 	txes =  bsizes-txsizes
@@ -91,24 +89,24 @@ def getstats(height):
 
 def prettyPrintStats(blockstats):
 	msg = "```WE FOUND A NEW BLOCK!\n"
-	msg += "\nHeight: {} \n".format(blockstats['height'])
-	msg += "Hash: {} \n".format(blockstats['hash'])
-	msg += "Orphan: {} \n".format(blockstats['orphan'])
-	msg += "Reward: {} \n".format(blockstats['reward'])
-	msg += "Size: {} \n".format(blockstats['bsizes'])
-	msg += "Time took to make: {} \n".format(blockstats['blocktime'])
+	msg += f"\nHeight: {blockstats['height']} \n"
+	msg += f"Hash: {blockstats['hash']} \n"
+	msg += f"Orphan: {blockstats['orphan']} \n"
+	msg += f"Reward: {blockstats['reward']} \n"
+	msg += f"Size: {blockstats['bsizes']} \n"
+	msg += f"Time took to make: {blockstats['blocktime']} \n"
 
-	msg += " \nNo. of txs in the block: {} \n".format(blockstats['ntxs'])
-	msg += "Tx hashes in the block: {} \n".format(blockstats['hashes'])
-	msg += "Size of each tx: {} \n".format(blockstats['hahsizes'])
-	msg += "Size of all the txs: {} \n \n".format(blockstats['txsizes'])
+	msg += f" \nNo. of txs in the block: {blockstats['ntxs']} \n"
+	msg += f"Tx hashes in the block: {blockstats['hashes']} \n"
+	msg += f"Size of each tx: {blockstats['hahsizes']} \n"
+	msg += f"Size of all the txs: {blockstats['txsizes']} \n \n"
 
-	msg += "tx_extra hash: {} \n".format(blockstats['teta'])
-	msg += "Decoded version of tx_extra: {} \n".format(blockstats['deteta'])
-	msg += "Size of tx_extra: {} \n \n".format(blockstats['txes'])
+	msg += f"tx_extra hash: {blockstats['teta']} \n"
+	msg += f"Decoded version of tx_extra: {blockstats['deteta']} \n"
+	msg += f"Size of tx_extra: {blockstats['txes']} \n \n"
 
-	msg += "Percentage of txs in the block: {} % \n".format(blockstats['txp'])
-	msg += "Percentage of tx_extra in the block: {} % ```".format(blockstats['txep'])
+	msg += f"Percentage of txs in the block: {blockstats['txp']} % \n"
+	msg += f"Percentage of tx_extra in the block: {blockstats['txep']} % ```"
 
 	#msg += blockstats['pingrock']
 
@@ -119,12 +117,13 @@ def prettyPrintStats(blockstats):
 @client.event
 async def on_ready():
 	print("connected")
-	height = tclbh['height']
+	height = tclbh['block_header']['height']
 	while True:
 		#prettyPrintStats(getstats(nheight))	
-		nheight = tc.getblockcount()['count']
+		nheight = tc.get_block_count()['result']['count']
 		if height != nheight:
 			prettyPrintStats(getstats(nheight))
+			
 			await client.send_message(discord.Object(id='459931714471460864'), prettyPrintStats(getstats(nheight)))
 			print("val changed")
 			print(nheight)
