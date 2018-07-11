@@ -3,7 +3,6 @@ import asyncio
 import turtlecoin
 import json
 import time
-import random
 
 #discord stuff
 token = open('tokenfile').read()
@@ -26,26 +25,28 @@ def getstats(height):
 
 	#reward of the latest block
 	reward = tcgl['reward']
+	#divide by 100 to convert into trtls from shells
 	breward = reward / 100
 
-	#wheter the time the block took to make is acceptable or not
-	timex = tcgl['timestamp']
+	"""wheter the time the block took to make is acceptable or not"""
+
+	timex = tcgl['timestamp'] #get the latest timestamp
 	prevhash = tcgl['prev_hash']
 	glb = tc.get_block(prevhash)['result']
-	time2 = glb['block']['timestamp']
-	timed = timex - time2
-	rock = "388916188715155467"
-	pingrock = "<@" + rock + ">"
-	blocktime = ""
+	time2 = glb['block']['timestamp'] #use vars defined in past 2 lines to get timestamp of past block
+	timed = timex - time2 #compare the difference between the two
+	rock = "388916188715155467" #rock's discord user id
+	pingrock = "<@" + rock + ">" #string which pings rock in discord
+	blocktime = "" #set to nothing for now
 	if timed <= 4:
 		blocktime += f"Block was too fast, {timed} seconds"
-		pingrock += ""
+		pingrock += "" #if time between blocks <4 seconds, mark it as too fast
 	elif timed >= 90:
 		blocktime += f'Took too long, {timed} seconds.'
-		pingrock += ""
+		pingrock += "" #if time between blocks >90 secs, mark it as too fast
 	else:
 		blocktime += f"Took {timed} seconds to make, pretty nice"
-		pingrock = ""
+		pingrock = "" #anywhere between 4-90 seconds for the block is alright
 
 	#size of the block
 	bsize = tc.get_block(hash)['result']
@@ -75,7 +76,7 @@ def getstats(height):
 		except UnicodeDecodeError:
 			deteta = "unable to decode, probably nothing in there"
 
-	#size of tx extra		
+	#size of tx extra
 	txes =  bsizes-txsizes
 
 	# % of txs in the block
@@ -117,20 +118,20 @@ def prettyPrintStats(blockstats):
 @client.event
 async def on_ready():
 	print("connected")
-	height = tclbh['block_header']['height']
+	height = tclbh['block_header']['height'] #get the latest height
 	while True:
-		#prettyPrintStats(getstats(nheight))	
-		nheight = tc.get_block_count()['result']['count']
+		#prettyPrintStats(getstats(nheight))
+		nheight = tc.get_block_count()['result']['count'] #get the latest height but in a while true loop
 		if height != nheight:
-			prettyPrintStats(getstats(nheight))
-			
-			await client.send_message(discord.Object(id='459931714471460864'), prettyPrintStats(getstats(nheight)))
+			prettyPrintStats(getstats(nheight)) #updates the values stored in the vars which print out in discord
+
+			await client.send_message(discord.Object(id='459931714471460864'), prettyPrintStats(getstats(nheight))) #send the message in discord
 			print("val changed")
 			print(nheight)
 			print(height)
-			height = nheight
+			height = nheight #set the height == latest height, so that it doesnt go cray cray after the first time the block changes
 			print(height)
-		await asyncio.sleep(0.5)
+		await asyncio.sleep(0.5) #wait for a bit before it loops
 
 
 client.run(token)
