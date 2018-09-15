@@ -263,7 +263,7 @@ async def on_ready():
 	print("connected")
 	height = tclbh['block_header']['height']
 	if client:
-		channel = client.get_channel(459931714471460864)
+		channel = client.get_channel(490250143472287745)
 	global displayHeight 
 	displayHeight = deque(['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0']) #this avoid display twice the same block on discord
 	while True:
