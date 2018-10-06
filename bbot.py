@@ -33,7 +33,7 @@ print("""\n\
     This is free software, and you are welcome to redistribute it
     under certain conditions\n""")
 
-ENABLE_DEBUG_LOG = True
+ENABLE_DEBUG_LOG = False
 
 
 if ENABLE_DEBUG_LOG:
@@ -286,22 +286,21 @@ async def on_ready():
 	print("Connected to Discord")
 	height = tclbh['block_header']['height']
 	if client:
-		channel = client.get_channel(459931714471460864)
+		channel = client.get_channel(490250143472287745)
 	global displayHeight 
 	displayHeight = deque(['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0']) #this avoid display twice the same block on discord
 	while True:
 		bsuccess = None
 		try:
 			nheight = tc.get_block_count()['result']['count']
-			bsuccess == True
+			bsuccess = True
 			if height != nheight and nheight not in displayHeight:
 				height = nheight
 				displayHeight.append(nheight)
 				displayHeight.popleft()
 				if client:
-					discordMsg =prettyPrintStats(getstats(nheight))
-					[await channel.send("```\n" + discordMsg[i: i + 1990] + "```---") for i in range(0, len(discordMsg), 1990)]
-
+					discordMsg = prettyPrintStats(getstats(nheight))
+					[await channel.send("```\n" + discordMsg[i: i + 1980] + "```---") for i in range(0, len(discordMsg), 1980)]
 				else:
 					prettyPrintStats(getstats(nheight))
 	
@@ -309,7 +308,7 @@ async def on_ready():
 		except Exception as e:
 			logging.error(str(e.__class__) + "  -  " + str(e))
 			print("get_block_count() error : " + str(e.__class__))
-			await asyncio.sleep(1)
+			await asyncio.sleep(2)
 
 
 def start_local_event_loop():
