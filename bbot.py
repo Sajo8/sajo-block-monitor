@@ -300,7 +300,10 @@ async def on_ready():
 				displayHeight.popleft()
 				if client:
 					discordMsg = prettyPrintStats(getstats(nheight))
-					[await channel.send("```\n" + discordMsg[i: i + 1980] + "```---") for i in range(0, len(discordMsg), 1980)]
+					if discordMsg != "Error occured, could not retrieve stats":
+						[await channel.send("```\n" + discordMsg[i: i + 1980] + "```---") for i in range(0, len(discordMsg), 1980)]
+					else:
+						pass
 				else:
 					prettyPrintStats(getstats(nheight))
 	
